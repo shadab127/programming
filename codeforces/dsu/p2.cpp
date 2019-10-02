@@ -2,7 +2,7 @@
  * @Author: shadabKhan
  * @Date:   Saturday, September 28th 2019, 3:05:07 pm
  * @Last modified by:   shadabKhan
- * @Last modified time: Sunday, September 29th 2019, 4:36:11 pm
+ * @Last modified time: Monday, September 30th 2019, 7:47:05 pm
  */
 #include<bits/stdc++.h>
 using namespace std;
@@ -19,12 +19,6 @@ void dfs(int source)
     if(!visited[destination])
       dfs(destination);
   }
-  if(graph[source].size()==0){
-    mymap[source].insert({colors[source],1});
-    dominating_color[source] = colors[source];
-    return;
-  }
-
   int64_t sum=0,maxi=0;
   mymap[source].insert({colors[source],1});
   sum=colors[source],maxi=1;

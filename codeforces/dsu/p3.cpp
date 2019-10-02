@@ -2,56 +2,68 @@
  * @Author: shadabKhan
  * @Date:   Saturday, September 28th 2019, 3:05:07 pm
  * @Last modified by:   shadabKhan
- * @Last modified time: Sunday, September 29th 2019, 4:42:04 pm
+ * @Last modified time: Monday, September 30th 2019, 8:00:19 pm
  */
 #include<bits/stdc++.h>
 using namespace std;
 #define maxx 100000
-unordered_map<int,int> mymap[maxx];
+map<int,int>* mymap[maxx];
 vector<bool> visited(maxx,0);
 vector<int64_t>dominating_color(maxx);
+vector<int>dominating_color_count(maxx);
 vector<vector<int> >graph(maxx);
 vector<int>colors(maxx);
-void dfs(int source)
+
+void dfs(int source,int parent)
 {
   visited[source]=1;
   for(auto destination : graph[source]){
-    if(!visited[destination])
-      dfs(destination);
+    if(!visited[destination]){
+      dfs(destination,source);
+    }
   }
-  if(graph[source].size()==0){
-    mymap[source].insert({colors[source],1});
-    dominating_color[source] = colors[source];
-    return;
-  }
-
   int64_t sum=0,maxi=0;
-  mymap[source].insert({colors[source],1});
-  sum=colors[source],maxi=1;
+
   for(auto destination : graph[source]){
-    for(auto key_value:mymap[destination]){
-      if(mymap[source].find(key_value.first) != mymap[source].end()){
-        mymap[source][key_value.first] += key_value.second;
+    if(destination==parent)continue;
+    map<int,int>*u = new map<int,int>;
+    map<int,int>*v = new map<int,int>;
+  //  cout<<"33 "<<source<<" "<<destination<<endl;
+    if((*mymap[source]).size() >= (*mymap[destination]).size()){
+      u = mymap[source];
+      v = mymap[destination];
+      sum = dominating_color[source];
+      maxi = dominating_color_count[source];
+    }
+    else{
+      u= mymap[destination];
+      v= mymap[source];
+      sum = dominating_color[destination];
+      maxi = dominating_color_count[destination];
+    }
+    for(auto key_value : *v){
+    //  cout<<"58 "<<key_value.first<<" "<<key_value.second<<endl;
+      if((*u).find(key_value.first) != (*u).end()){
+        (*u)[key_value.first] += key_value.second;
       }
       else{
-        mymap[source].insert({key_value.first,key_value.second});
+        (*u).insert({key_value.first,key_value.second});
         }
-        if(mymap[source][key_value.first]>maxi){
+        if((*u)[key_value.first]>maxi){
           sum=key_value.first;
-          maxi=mymap[source][key_value.first];
+          maxi=(*u)[key_value.first];
         }
-        else if(mymap[source][key_value.first] == maxi){
+        else if((*u)[key_value.first] == maxi){
           sum += key_value.first;
         }
       }
-      mymap[destination].clear();
+      mymap[source] = u;
+      dominating_color[source]=sum;
+      dominating_color_count[source] = maxi;
     }
-    dominating_color[source]=sum;
 }
 int main()
 {
-  ios_base::sync_with_stdio(false);
-  cin.tie(NULL);
   int n;
   cin>>n;
   for(int i=0;i<n;i++)cin>>colors[i];
@@ -62,7 +74,14 @@ int main()
     graph[x-1].push_back(y-1);
     graph[y-1].push_back(x-1);
   }
-  dfs(0);
+  for(int i=0;i<n;i++)
+  {
+    mymap[i] =  new map<int,int>;
+    (*mymap[i]).insert({colors[i],1});
+    dominating_color[i] = colors[i];
+    dominating_color_count[i] = 1;
+  }
+  dfs(0,-1);
   for(int i=0;i<n;i++)
   {
     cout<<dominating_color[i]<<" ";
